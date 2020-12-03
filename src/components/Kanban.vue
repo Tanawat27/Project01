@@ -18,10 +18,13 @@
           >
             {{ task.task_name }}
           </div>
-          <div class="drop_zone" 
-          @dragenter.prevent="drop_zone_enter" 
-          @dragleave.prevent="drop_zone_leave" 
-          @dragover.prevent></div>
+          <div
+            class="drop_zone"
+            @dragenter.prevent="drop_zone_enter"
+            @dragleave.prevent="drop_zone_leave"
+            @dragover.prevent
+            @drop="drop_item(index, task_index)"
+          ></div>
         </div>
 
         <div class="createtask" @click="createtask(index)">Create Task</div>
@@ -42,6 +45,7 @@ export default {
   props: {
     data: Array,
     create_task_submit: Function,
+    move_item_task: Function,
   },
   methods: {
     createtask(index_column) {
@@ -55,24 +59,34 @@ export default {
     },
     start_move(task_index, column_index) {
       this.current_column_index = column_index;
-      this.create_task_index = task_index;
+      this.current_task_index = task_index;
     },
-    drop_zone_enter(event){
-        event.target.style.height = "100px";
-        event.target.style.borderStyle = "dotted"
-        event.target.style.transition = "height 0.5s"
+    drop_zone_enter(event) {
+      event.target.style.height = "100px";
+      event.target.style.borderStyle = "dotted";
+      event.target.style.transition = "height 0.5s";
     },
-    drop_zone_leave(event){
-        event.target.style.height = "10px";
-        event.target.style.borderStyle = "none"
-        event.target.style.transition = "height 0.5s"
-    }
+    drop_zone_leave(event) {
+      event.target.style.height = "10px";
+      event.target.style.borderStyle = "none";
+      event.target.style.transition = "height 0.5s";
+    },
+    drop_item(column_index, task_index) {
+    
+      
+      this.move_item_task(
+        this.current_column_index,
+        this.current_task_index,
+        column_index,
+        task_index
+      );
+    },
   },
   data() {
     return {
       task_name: "",
       current_column_index: "",
-      create_task_index: "",
+      current_task_index: "",
     };
   },
 };
@@ -132,7 +146,7 @@ export default {
   margin: 10px;
   background-color: rgb(184, 184, 184);
 }
-.drop_zone{
-    height: 10px;
+.drop_zone {
+  height: 10px;
 }
 </style>

@@ -10,12 +10,30 @@
         {{ column.name }}
       </div>
       <div class="columnbody">
+        <div v-for="(task, task_index) in column.tasks" :key="task_index">
+          <div
+            class="task"
+            :draggable="true"
+            @dragstart="start_move(task_index, index)"
+          >
+            {{ task.task_name }}
+          </div>
+          <div class="drop_zone" 
+          @dragenter.prevent="drop_zone_enter" 
+          @dragleave.prevent="drop_zone_leave" 
+          @dragover.prevent></div>
+        </div>
+
         <div class="createtask" @click="createtask(index)">Create Task</div>
       </div>
     </div>
     <b-modal ref="createtaskmodal" title="Create Task">
-    <p class="my-4">Hello from modal!</p>
-  </b-modal>
+      <input
+        class="input-taskname"
+        v-model="task_name"
+        @keyup.13="submit_create_task"
+      />
+    </b-modal>
   </div>
 </template>
 
@@ -23,13 +41,40 @@
 export default {
   props: {
     data: Array,
+    create_task_submit: Function,
   },
-  methods:{ 
-      createtask(indec_column){
-          console.log(indec_column);
-          this.$refs["createtaskmodal"].show()
-      }
-      }
+  methods: {
+    createtask(index_column) {
+      this.current_column_index = index_column;
+      this.$refs["createtaskmodal"].show();
+    },
+    submit_create_task() {
+      this.create_task_submit(this.current_column_index, {
+        task_name: this.task_name,
+      });
+    },
+    start_move(task_index, column_index) {
+      this.current_column_index = column_index;
+      this.create_task_index = task_index;
+    },
+    drop_zone_enter(event){
+        event.target.style.height = "100px";
+        event.target.style.borderStyle = "dotted"
+        event.target.style.transition = "height 0.5s"
+    },
+    drop_zone_leave(event){
+        event.target.style.height = "10px";
+        event.target.style.borderStyle = "none"
+        event.target.style.transition = "height 0.5s"
+    }
+  },
+  data() {
+    return {
+      task_name: "",
+      current_column_index: "",
+      create_task_index: "",
+    };
+  },
 };
 </script>
 
@@ -73,7 +118,21 @@ export default {
   border-radius: 10px;
   cursor: pointer;
 }
-.createtask:hover{
-    background-color: rgb(3, 73, 204);
+.createtask:hover {
+  background-color: rgb(3, 73, 204);
+}
+.input-taskname {
+  width: 100%;
+}
+.task {
+  width: auto;
+  height: 100px;
+  position: relative;
+  border-radius: 2px;
+  margin: 10px;
+  background-color: rgb(184, 184, 184);
+}
+.drop_zone{
+    height: 10px;
 }
 </style>
